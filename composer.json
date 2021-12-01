@@ -1,6 +1,15 @@
 {
-    "require": {
-        "vlucas/phpdotenv": "^5.4",
-        "guzzlehttp/guzzle": "^7.0"
-    }
+    "name": "ivan-meshcheryakov/tgbot",
+    "autoload": {
+        "psr-4": {
+            "IvanMeshcheryakov\\Tgbot\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Ivan Meshcheryakov",
+            "email": "meshcheryakovvrn@gmail.com"
+        }
+    ],
+    "require": {}
 }
