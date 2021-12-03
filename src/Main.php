@@ -1,6 +1,7 @@
 <?php
 namespace IvanMeshcheryakov\Tgbot;
 
+use Dotenv\Parser\Parser;
 use IvanMeshcheryakov\Tgbot\DB;
 use GuzzleHttp\Client;
 use Dotenv\Dotenv;
@@ -9,7 +10,7 @@ use mysqli;
 class Main
 {
     private string $apiUrl;
-    private mysqli $db;
+    private DB $db;
 
     public function __construct()
     {
@@ -17,7 +18,7 @@ class Main
         $dotenv->load();
 
         $this->apiUrl = "https://api.telegram.org/bot" . $_ENV['TG_TOKEN'];
-        $this->db = (new DB())->db;
+        $this->db = new DB();
     }
 
     public function main()
@@ -31,7 +32,7 @@ class Main
             foreach ($resp->result as $update) {
                 switch ($update) {
                     case (isset($update->message)):
-                        print "Пришло сообщение: ";
+                        print "Пришло сообщение\n";
                         $this->processMessageCase($update);
                         break;
                     case (isset($update->inline_query)):
@@ -62,10 +63,13 @@ class Main
         // Определяю имя
         $name = isset($update->message->chat->first_name) ? $update->message->chat->first_name : 'none';
 
-        $dbRes = $this->db->query("SELECT name FROM users WHERE chat_id LIKE '{$chatId}'");
+        if (!$this->db->doesUserExists($chatId)) {
+            print_r("Новый пользователь\n");
+            $result = $this->db->addNewUser($chatId, $name);
 
-        if ($this->db->affected_rows == 0) {
-            $dbRes = $this->db->query("INSERT INTO users(chat_id, name) VALUES ('{$chatId}', '{$name}')");
+            if (!$result) {
+                print "Ошибка при добавлении нового пользователя!\n";
+            }
         }
 
         // Проверка на бот комманду или другую сущность
@@ -90,7 +94,7 @@ class Main
         if (isset($update->message->text)) {
             print "{$update->message->text}\n";
 
-            if ($update->message->text == 'Пидар') {
+            if ($update->message->text == 'роза') {
                 $this->makeRequest("pinChatMessage", ['chat_id' => $chatId, 'message_id' => $update->message->message_id]);
 
             }
