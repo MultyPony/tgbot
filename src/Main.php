@@ -1,11 +1,8 @@
 <?php
 namespace IvanMeshcheryakov\Tgbot;
 
-use Dotenv\Parser\Parser;
-use IvanMeshcheryakov\Tgbot\DB;
 use GuzzleHttp\Client;
 use Dotenv\Dotenv;
-use mysqli;
 
 class Main
 {
@@ -28,6 +25,11 @@ class Main
 
         while (true) {
             $resp = $this->makeRequest("getUpdates", ['offset' => $offset]);
+
+            if (!$resp) {
+                $offset = $updateId + 1;
+                continue;
+            }
             // Получаю массив Update
             foreach ($resp->result as $update) {
                 switch ($update) {
@@ -51,9 +53,15 @@ class Main
     public function makeRequest($methodName, $query = [])
     {
         $client = new Client();
-        $response = $client->request('GET', "$this->apiUrl/$methodName", [
-            'query' => $query,
-        ]);
+        try {
+            $response = $client->request('GET', "$this->apiUrl/$methodName", [
+                'query' => $query,
+            ]);
+        } catch (\Exception $exception) {
+            print_r($exception->getMessage());
+            return false;
+        }
+
         return json_decode($response->getBody()->getContents());
     }
 
