@@ -11,5 +11,8 @@
             "email": "meshcheryakovvrn@gmail.com"
         }
     ],
-    "require": {}
+    "require": {
+        "vlucas/phpdotenv": "^5.4",
+        "guzzlehttp/guzzle": "^7.0"
+    }
 }
